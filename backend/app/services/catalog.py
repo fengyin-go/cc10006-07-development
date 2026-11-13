@@ -33,6 +33,13 @@ class CatalogService:
     def get_entry(self, entry_id: int) -> dict[str, Any] | None:
         return store.find(MODULE, entry_id)
 
+    def get_by_view(self, view_no: str) -> dict[str, Any] | None:
+        """按关联视图编号读取同步记录，供聚合层核对目录/血缘同步状态。"""
+        for row in store.rows(MODULE):
+            if row.get("关联视图") == view_no:
+                return row
+        return None
+
     def create_entry(self, values: dict[str, Any]) -> tuple[dict[str, Any] | None, list[str]]:
         missing = [field for field in REQUIRED_FIELDS if not str(values.get(field) or "").strip()]
         if missing:

@@ -30,6 +30,18 @@ def list_entries(
     return PageResult(items=items, total=total, page=page, size=size)
 
 
+@router.get("/alerts", response_model=dict)
+def list_alerts(
+    view: str | None = Query(default=None, description="按视图编号过滤"),
+    status: str | None = Query(default=None, description="待处理、已关闭"),
+) -> dict[str, Any]:
+    """质量告警台账：与聚合层共享同一份台账，冲突级别以本台账为准。"""
+    from app.services.gold import GoldService
+
+    items = GoldService().alerts(view_no=view, status=status)
+    return {"items": items, "total": len(items)}
+
+
 @router.get("/{entry_id}", response_model=dict)
 def get_entry(entry_id: int) -> dict:
     """读取单条质量指标明细；不存在时给出可读的错误说明。"""
